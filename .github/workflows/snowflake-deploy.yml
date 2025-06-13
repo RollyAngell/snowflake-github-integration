@@ -32,31 +32,32 @@ jobs:
         SNOWFLAKE_WAREHOUSE: ${{ github.ref == 'refs/heads/master' && secrets.SNOWFLAKE_WAREHOUSE_PROD || secrets.SNOWFLAKE_WAREHOUSE_DEV }}
         SNOWFLAKE_DATABASE: ${{ github.ref == 'refs/heads/master' && secrets.SNOWFLAKE_DATABASE_PROD || secrets.SNOWFLAKE_DATABASE_DEV }}
       run: |
-        python -c "
-        import snowflake.connector
-        conn = snowflake.connector.connect(
-            user='$SNOWFLAKE_USER',
-            password='$SNOWFLAKE_PASSWORD',
-            account='$SNOWFLAKE_ACCOUNT',
-            warehouse='$SNOWFLAKE_WAREHOUSE',
-            database='$SNOWFLAKE_DATABASE',
-            role='$SNOWFLAKE_ROLE'
-        )
-        cursor = conn.cursor()
-        with open('snowflake/sql/init.sql', 'r') as f:
-            sql = f.read()
-            print('SQL file content:')
-            print(sql)
-            for statement in sql.split(';'):
-                stmt = statement.strip()
-                if stmt and not stmt.startswith('--'):
-                    print(f"Executing: {stmt[:60]}...")
-                    try:
-                        cursor.execute(stmt)
-                    except Exception as e:
-                        print(f"Error executing statement: {stmt[:60]}...\\n{e}")
-        cursor.execute('SELECT CURRENT_DATABASE(), CURRENT_SCHEMA()')
-        print(cursor.fetchone())
-        cursor.close()
-        conn.close()
-        " 
+        cat <<EOF > deploy_snowflake.py
+import snowflake.connector
+conn = snowflake.connector.connect(
+    user='$SNOWFLAKE_USER',
+    password='$SNOWFLAKE_PASSWORD',
+    account='$SNOWFLAKE_ACCOUNT',
+    warehouse='$SNOWFLAKE_WAREHOUSE',
+    database='$SNOWFLAKE_DATABASE',
+    role='$SNOWFLAKE_ROLE'
+)
+cursor = conn.cursor()
+with open('snowflake/sql/init.sql', 'r') as f:
+    sql = f.read()
+    print('SQL file content:')
+    print(sql)
+    for statement in sql.split(';'):
+        stmt = statement.strip()
+        if stmt and not stmt.startswith('--'):
+            print(f"Executing: {stmt[:60]}...")
+            try:
+                cursor.execute(stmt)
+            except Exception as e:
+                print(f"Error executing statement: {stmt[:60]}...\\n{e}")
+cursor.execute('SELECT CURRENT_DATABASE(), CURRENT_SCHEMA()')
+print(cursor.fetchone())
+cursor.close()
+conn.close()
+EOF
+        python deploy_snowflake.py 
