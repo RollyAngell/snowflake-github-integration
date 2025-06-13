@@ -21,6 +21,7 @@ with open('snowflake/sql/init.sql', 'r') as f:
             print(f"Executing: {stmt[:60]}...")
             try:
                 cursor.execute(stmt)
+                print("Success.")
             except Exception as e:
                 print(f"Error executing: {stmt[:60]}...\n{e}")
 cursor.execute('SELECT CURRENT_DATABASE(), CURRENT_SCHEMA()')
