@@ -32,4 +32,23 @@ jobs:
         SNOWFLAKE_WAREHOUSE: ${{ github.ref == 'refs/heads/master' && secrets.SNOWFLAKE_WAREHOUSE_PROD || secrets.SNOWFLAKE_WAREHOUSE_DEV }}
         SNOWFLAKE_DATABASE: ${{ github.ref == 'refs/heads/master' && secrets.SNOWFLAKE_DATABASE_PROD || secrets.SNOWFLAKE_DATABASE_DEV }}
       run: |
-        python -c "import snowflake.connector; conn = snowflake.connector.connect(user='$SNOWFLAKE_USER', password='$SNOWFLAKE_PASSWORD', account='$SNOWFLAKE_ACCOUNT', warehouse='$SNOWFLAKE_WAREHOUSE', database='$SNOWFLAKE_DATABASE', role='$SNOWFLAKE_ROLE'); cursor = conn.cursor(); f = open('snowflake/sql/init.sql', 'r'); sql = f.read(); [cursor.execute(stmt.strip()) for stmt in sql.split(';') if stmt.strip() and not stmt.strip().startswith('--')]; cursor.execute('SELECT CURRENT_DATABASE(), CURRENT_SCHEMA()'); print(cursor.fetchone()); cursor.close(); conn.close()"
+        python -c "import snowflake.connector; \
+conn = snowflake.connector.connect(\
+    user='$SNOWFLAKE_USER',\
+    password='$SNOWFLAKE_PASSWORD',\
+    account='$SNOWFLAKE_ACCOUNT',\
+    warehouse='$SNOWFLAKE_WAREHOUSE',\
+    database='$SNOWFLAKE_DATABASE',\
+    role='$SNOWFLAKE_ROLE'\
+);\
+cursor = conn.cursor();\
+with open('snowflake/sql/init.sql', 'r') as f:\
+    sql = f.read();\
+    for statement in sql.split(';'):\
+        stmt = statement.strip();\
+        if stmt and not stmt.startswith('--'):\
+            cursor.execute(stmt);\
+cursor.execute('SELECT CURRENT_DATABASE(), CURRENT_SCHEMA()');\
+print(cursor.fetchone());\
+cursor.close();\
+conn.close()"
