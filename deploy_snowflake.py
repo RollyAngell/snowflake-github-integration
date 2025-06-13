@@ -10,12 +10,23 @@ conn = snowflake.connector.connect(
     role=os.environ['SNOWFLAKE_ROLE']
 )
 cursor = conn.cursor()
+print("Connected to:", os.environ['SNOWFLAKE_DATABASE'])
 with open('snowflake/sql/init.sql', 'r') as f:
     sql = f.read()
-    for statement in sql.split(';'):
+    print("SQL to execute:")
+    print(sql)
+    statements = sql.split(';')
+    print(f"Found {len(statements)} statements.")
+    for i, statement in enumerate(statements):
         stmt = statement.strip()
+        print(f"Statement {i+1}: {repr(stmt)}")
         if stmt and not stmt.startswith('--'):
-            cursor.execute(stmt)
+            print(f"Executing: {stmt[:60]}...")
+            try:
+                cursor.execute(stmt)
+                print("Success.")
+            except Exception as e:
+                print(f"Error executing: {stmt[:60]}...\n{e}")
 cursor.execute('SELECT CURRENT_DATABASE(), CURRENT_SCHEMA()')
 print(cursor.fetchone())
 cursor.close()
