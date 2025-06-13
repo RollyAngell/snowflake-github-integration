@@ -1,7 +1,7 @@
--- Crear esquema
+-- Create schema
 CREATE SCHEMA IF NOT EXISTS DEMO;
 
--- Crear tabla de ejemplo
+-- Create example table
 CREATE OR REPLACE TABLE DEMO.CUSTOMERS (
     CUSTOMER_ID NUMBER AUTOINCREMENT,
     FIRST_NAME VARCHAR(50),
@@ -10,7 +10,7 @@ CREATE OR REPLACE TABLE DEMO.CUSTOMERS (
     CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
 );
 
--- Crear tabla de órdenes
+-- Create orders table
 CREATE OR REPLACE TABLE DEMO.ORDERS (
     ORDER_ID NUMBER AUTOINCREMENT,
     CUSTOMER_ID NUMBER,
@@ -19,7 +19,7 @@ CREATE OR REPLACE TABLE DEMO.ORDERS (
     STATUS VARCHAR(20)
 );
 
--- Crear vista de ejemplo
+-- Create example view
 CREATE OR REPLACE VIEW DEMO.CUSTOMER_ORDERS AS
 SELECT 
     c.CUSTOMER_ID,
@@ -31,4 +31,4 @@ FROM DEMO.CUSTOMERS c
 LEFT JOIN DEMO.ORDERS o ON c.CUSTOMER_ID = o.CUSTOMER_ID
 GROUP BY c.CUSTOMER_ID, c.FIRST_NAME, c.LAST_NAME;
 
--- Cambio de prueba para activar GitHub Actions 
+-- Test change to trigger GitHub Actions 

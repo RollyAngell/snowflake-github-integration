@@ -1,4 +1,4 @@
-# Configuración de Snowflake
+# Snowflake configuration
 snowflake:
   account: ${SNOWFLAKE_ACCOUNT}
   user: ${SNOWFLAKE_USER}
@@ -8,7 +8,7 @@ snowflake:
   database: ${SNOWFLAKE_DATABASE}
   schema: DEMO
 
-# Configuración de despliegue
+# Deployment configuration
 deploy:
   auto_commit: true
   validate_sql: true

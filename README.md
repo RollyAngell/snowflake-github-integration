@@ -1,8 +1,8 @@
-# Proyecto Snowflake con GitHub Actions
+# Snowflake Project with GitHub Actions
 
-Este proyecto demuestra la integración entre Snowflake y GitHub, utilizando GitHub Actions para CI/CD.
+This project demonstrates the integration between Snowflake and GitHub, using GitHub Actions for CI/CD.
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 .
@@ -17,9 +17,9 @@ Este proyecto demuestra la integración entre Snowflake y GitHub, utilizando Git
 └── README.md
 ```
 
-## Configuración
+## Configuration
 
-1. Configurar las credenciales de Snowflake en GitHub Secrets:
+1. Set up Snowflake credentials in GitHub Secrets:
    - `SNOWFLAKE_ACCOUNT`
    - `SNOWFLAKE_USER`
    - `SNOWFLAKE_PASSWORD`
@@ -27,8 +27,8 @@ Este proyecto demuestra la integración entre Snowflake y GitHub, utilizando Git
    - `SNOWFLAKE_WAREHOUSE`
    - `SNOWFLAKE_DATABASE`
 
-2. Configurar el archivo de configuración en `snowflake/config/config.yml`
+2. Configure the settings file in `snowflake/config/config.yml`
 
-## Uso
+## Usage
 
-El pipeline de GitHub Actions se ejecutará automáticamente cuando se haga push a la rama main. 
+The GitHub Actions pipeline will run automatically when you push to the main branch. 
