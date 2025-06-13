@@ -47,7 +47,7 @@ jobs:
             sql = f.read()
             for statement in sql.split(';'):
                 stmt = statement.strip()
-                if stmt:
+                if stmt and not stmt.isspace():
                     cursor.execute(stmt)
         cursor.close()
         conn.close()
