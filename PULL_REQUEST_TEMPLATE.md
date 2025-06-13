@@ -3,6 +3,10 @@
 ## Description
 Describe clearly and concisely what this PR does. Include context and the motivation behind the change.
 
+## Target branch and environment
+- [ ] This PR targets the `dev` branch (development environment)
+- [ ] This PR targets the `master` branch (production environment)
+
 ## Type of change
 - [ ] New feature
 - [ ] Bug fix
