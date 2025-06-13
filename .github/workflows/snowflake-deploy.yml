@@ -32,7 +32,7 @@ jobs:
         SNOWFLAKE_WAREHOUSE: ${{ github.ref == 'refs/heads/master' && secrets.SNOWFLAKE_WAREHOUSE_PROD || secrets.SNOWFLAKE_WAREHOUSE_DEV }}
         SNOWFLAKE_DATABASE: ${{ github.ref == 'refs/heads/master' && secrets.SNOWFLAKE_DATABASE_PROD || secrets.SNOWFLAKE_DATABASE_DEV }}
       run: |
-        cat > deploy_snowflake.py << 'EOF'
+        cat > deploy_snowflake.py <<EOF
 import snowflake.connector
 conn = snowflake.connector.connect(
     user='$SNOWFLAKE_USER',
