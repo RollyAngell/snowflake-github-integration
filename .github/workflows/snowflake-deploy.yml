@@ -45,7 +45,10 @@ jobs:
         cursor = conn.cursor()
         with open('snowflake/sql/init.sql', 'r') as f:
             sql = f.read()
-            cursor.execute(sql)
+            for statement in sql.split(';'):
+                stmt = statement.strip()
+                if stmt:
+                    cursor.execute(stmt)
         cursor.close()
         conn.close()
         " 
