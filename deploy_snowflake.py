@@ -1,5 +1,6 @@
 import snowflake.connector
 import os
+import re
 
 conn = snowflake.connector.connect(
     user=os.environ['SNOWFLAKE_USER'],
@@ -15,12 +16,13 @@ with open('snowflake/sql/init.sql', 'r') as f:
     sql = f.read()
     print("SQL to execute:")
     print(sql)
-    statements = sql.split(';')
+    sql_no_comments = re.sub(r'--.*', '', sql)
+    statements = sql_no_comments.split(';')
     print(f"Found {len(statements)} statements.")
     for i, statement in enumerate(statements):
         stmt = statement.strip()
         print(f"Statement {i+1}: {repr(stmt)}")
-        if stmt and not stmt.startswith('--'):
+        if stmt:
             print(f"Executing: {stmt[:60]}...")
             try:
                 cursor.execute(stmt)
