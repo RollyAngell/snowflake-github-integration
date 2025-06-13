@@ -31,5 +31,22 @@ with open('snowflake/sql/init.sql', 'r') as f:
                 print(f"Error executing: {stmt[:60]}...\n{e}")
 cursor.execute('SELECT CURRENT_DATABASE(), CURRENT_SCHEMA()')
 print(cursor.fetchone())
+with open('snowflake/sql/load_customers_data.sql', 'r') as f:
+    sql = f.read()
+    print("SQL to execute (data load):")
+    print(sql)
+    sql_no_comments = re.sub(r'--.*', '', sql)
+    statements = sql_no_comments.split(';')
+    print(f"Found {len(statements)} statements.")
+    for i, statement in enumerate(statements):
+        stmt = statement.strip()
+        print(f"Statement {i+1}: {repr(stmt)}")
+        if stmt:
+            print(f"Executing: {stmt[:60]}...")
+            try:
+                cursor.execute(stmt)
+                print("Success.")
+            except Exception as e:
+                print(f"Error executing: {stmt[:60]}...\n{e}")
 cursor.close()
 conn.close()

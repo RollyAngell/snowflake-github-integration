@@ -67,4 +67,25 @@ This project uses a professional CI/CD workflow for Snowflake with GitHub Action
 - **Best practices:**
   - All SQL is idempotent and versioned.
   - All deployments are automated and logged.
-  - Secrets are managed securely in GitHub. 
+  - Secrets are managed securely in GitHub.
+
+## External Data Load (Azure Blob Storage)
+
+This project also demonstrates how to load external data from Azure Blob Storage into Snowflake tables:
+
+- **Stage setup:**
+  - The file `snowflake/sql/create_external_stage.sql` contains the SQL to create a storage integration and an external stage in Snowflake pointing to your Azure Blob Storage container.
+  - This script should be run manually by an admin when setting up the environment for the first time.
+
+- **Data load:**
+  - The file `snowflake/sql/load_customers_data.sql` contains a `COPY INTO` command to load data from the CSV file in Azure Blob Storage into the `DEMO.CUSTOMERS` table.
+  - The pipeline executes this file after the DDL scripts, so your tables are automatically populated with external data during deployment.
+
+- **How it works:**
+  1. Upload your CSV file (e.g., `customers.csv`) to your Azure Blob Storage container (e.g., `demo-data`).
+  2. Run the SQL in `create_external_stage.sql` in Snowflake to create the storage integration and stage.
+  3. The pipeline will execute `load_customers_data.sql` to load the data into the target table.
+
+- **Benefits:**
+  - Automates the ingestion of external data as part of your CI/CD process.
+  - Keeps infrastructure (stage creation) and data load scripts versioned and documented. 
