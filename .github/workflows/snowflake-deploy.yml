@@ -2,9 +2,9 @@ name: Snowflake Deployment
 
 on:
   push:
-    branches: [ master ]
+    branches: [ dev, master ]
   pull_request:
-    branches: [ master ]
+    branches: [ dev, master ]
 
 jobs:
   deploy:
@@ -29,26 +29,7 @@ jobs:
         SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
         SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
         SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
-        SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-        SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+        SNOWFLAKE_WAREHOUSE: ${{ github.ref == 'refs/heads/master' && secrets.SNOWFLAKE_WAREHOUSE_PROD || secrets.SNOWFLAKE_WAREHOUSE_DEV }}
+        SNOWFLAKE_DATABASE: ${{ github.ref == 'refs/heads/master' && secrets.SNOWFLAKE_DATABASE_PROD || secrets.SNOWFLAKE_DATABASE_DEV }}
       run: |
-        python -c "
-        import snowflake.connector
-        conn = snowflake.connector.connect(
-            user='$SNOWFLAKE_USER',
-            password='$SNOWFLAKE_PASSWORD',
-            account='$SNOWFLAKE_ACCOUNT',
-            warehouse='$SNOWFLAKE_WAREHOUSE',
-            database='$SNOWFLAKE_DATABASE',
-            role='$SNOWFLAKE_ROLE'
-        )
-        cursor = conn.cursor()
-        with open('snowflake/sql/init.sql', 'r') as f:
-            sql = f.read()
-            for statement in sql.split(';'):
-                stmt = statement.strip()
-                if stmt and not stmt.startswith('--'):
-                    cursor.execute(stmt)
-        cursor.close()
-        conn.close()
-        " 
+        python deploy_snowflake.py
