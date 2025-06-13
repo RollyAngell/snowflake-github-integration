@@ -1,0 +1,51 @@
+name: Snowflake Deployment
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install snowflake-connector-python
+        pip install snowflake-sqlalchemy
+    
+    - name: Deploy to Snowflake
+      env:
+        SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+        SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+        SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+        SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+        SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      run: |
+        python -c "
+        import snowflake.connector
+        conn = snowflake.connector.connect(
+            user='$SNOWFLAKE_USER',
+            password='$SNOWFLAKE_PASSWORD',
+            account='$SNOWFLAKE_ACCOUNT',
+            warehouse='$SNOWFLAKE_WAREHOUSE',
+            database='$SNOWFLAKE_DATABASE',
+            role='$SNOWFLAKE_ROLE'
+        )
+        cursor = conn.cursor()
+        with open('snowflake/sql/init.sql', 'r') as f:
+            sql = f.read()
+            cursor.execute(sql)
+        cursor.close()
+        conn.close()
+        " 
