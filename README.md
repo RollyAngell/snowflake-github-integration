@@ -89,3 +89,56 @@ This project also demonstrates how to load external data from Azure Blob Storage
 - **Benefits:**
   - Automates the ingestion of external data as part of your CI/CD process.
   - Keeps infrastructure (stage creation) and data load scripts versioned and documented. 
+
+---
+
+## Troubleshooting y Lecciones Aprendidas (Integración Externa)
+
+### Problema actual: Error con la integración externa
+
+Al ejecutar el comando de carga de datos:
+
+```sql
+COPY INTO CUSTOMERS (FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUMBER)
+FROM @azure_demo_stage/customers.csv
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1);
+```
+aparece el siguiente error en Snowflake:
+
+```
+Integration 'AZURE_INT' does not exist or not authorized.
+```
+
+#### Diagnóstico
+- El objeto de integración fue creado como `AZURE_INT` (en mayúsculas).
+- El stage y los scripts deben referenciar exactamente el mismo nombre (`AZURE_INT`), sin comillas dobles y respetando el case.
+- Si el rol que ejecuta el comando no tiene privilegio `USAGE` sobre la integración, también aparecerá este error.
+
+#### Recomendaciones para solucionarlo
+1. **Verificar el nombre de la integración**
+   - Ejecutar en Snowflake:
+     ```sql
+     SHOW INTEGRATIONS;
+     ```
+     y usar exactamente el nombre que aparece (por ejemplo, `AZURE_INT`).
+2. **Recrear el stage si es necesario**
+   - Asegurarse de que el stage use el nombre correcto:
+     ```sql
+     CREATE OR REPLACE STAGE azure_demo_stage
+       URL='azure://snowflakedemo0.blob.core.windows.net/demo-data'
+       STORAGE_INTEGRATION = AZURE_INT;
+     ```
+3. **Asignar permisos al rol**
+   - Dar privilegio de uso al rol que ejecuta el pipeline:
+     ```sql
+     GRANT USAGE ON INTEGRATION AZURE_INT TO ROLE <nombre_del_rol>;
+     ```
+4. **Verificar que el pipeline y los scripts usen el mismo nombre**
+   - Revisar que en todos los scripts y configuraciones se use `AZURE_INT` (mayúsculas, sin comillas dobles).
+
+---
+
+**Notas finales:**
+- No es necesario recrear la integración ni el stage en cada despliegue: solo una vez por entorno.
+- Si el error persiste, revisar los permisos del rol y el nombre exacto de la integración.
+- Una vez resuelto, el pipeline cargará los datos automáticamente y la tabla `DEMO.CUSTOMERS` mostrará los registros del archivo CSV. 
