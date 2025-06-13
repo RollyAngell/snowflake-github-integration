@@ -1,39 +1,35 @@
 name: Snowflake Deployment
-'on':
+
+on:
   push:
-    branches:
-      - dev
-      - master
+    branches: [ dev, master ]
   pull_request:
-    branches:
-      - dev
-      - master
+    branches: [ dev, master ]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install snowflake-connector-python
-          pip install snowflake-sqlalchemy
-      - name: Deploy to Snowflake
-        env:
-          SNOWFLAKE_ACCOUNT: '${{ secrets.SNOWFLAKE_ACCOUNT }}'
-          SNOWFLAKE_USER: '${{ secrets.SNOWFLAKE_USER }}'
-          SNOWFLAKE_PASSWORD: '${{ secrets.SNOWFLAKE_PASSWORD }}'
-          SNOWFLAKE_ROLE: '${{ secrets.SNOWFLAKE_ROLE }}'
-          SNOWFLAKE_WAREHOUSE: >-
-            ${{ github.ref == 'refs/heads/master' &&
-            secrets.SNOWFLAKE_WAREHOUSE_PROD || secrets.SNOWFLAKE_WAREHOUSE_DEV
-            }}
-          SNOWFLAKE_DATABASE: >-
-            ${{ github.ref == 'refs/heads/master' &&
-            secrets.SNOWFLAKE_DATABASE_PROD || secrets.SNOWFLAKE_DATABASE_DEV }}
-        run: |
-          python deploy_snowflake.py
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install snowflake-connector-python
+        pip install snowflake-sqlalchemy
+    
+    - name: Deploy to Snowflake
+      env:
+        SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+        SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+        SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+        SNOWFLAKE_WAREHOUSE: ${{ github.ref == 'refs/heads/master' && secrets.SNOWFLAKE_WAREHOUSE_PROD || secrets.SNOWFLAKE_WAREHOUSE_DEV }}
+        SNOWFLAKE_DATABASE: ${{ github.ref == 'refs/heads/master' && secrets.SNOWFLAKE_DATABASE_PROD || secrets.SNOWFLAKE_DATABASE_DEV }}
+      run: |
+        python deploy_snowflake.py
