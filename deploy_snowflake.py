@@ -15,8 +15,11 @@ with open('snowflake/sql/init.sql', 'r') as f:
     sql = f.read()
     print("SQL to execute:")
     print(sql)
-    for statement in sql.split(';'):
+    statements = sql.split(';')
+    print(f"Found {len(statements)} statements.")
+    for i, statement in enumerate(statements):
         stmt = statement.strip()
+        print(f"Statement {i+1}: {repr(stmt)}")
         if stmt and not stmt.startswith('--'):
             print(f"Executing: {stmt[:60]}...")
             try:
