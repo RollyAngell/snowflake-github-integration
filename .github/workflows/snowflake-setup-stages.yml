@@ -1,0 +1,82 @@
+name: Setup Snowflake Stages
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to setup'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+jobs:
+  setup-stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install snowflake-connector-python
+          
+      - name: Setup Snowflake Stage
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE_DEV }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE_DEV }}
+        if: github.event.inputs.environment == 'dev'
+        run: |
+          python -c "
+          import snowflake.connector
+          conn = snowflake.connector.connect(
+              user='${{ env.SNOWFLAKE_USER }}',
+              password='${{ env.SNOWFLAKE_PASSWORD }}',
+              account='${{ env.SNOWFLAKE_ACCOUNT }}',
+              role='${{ env.SNOWFLAKE_ROLE }}',
+              database='${{ env.SNOWFLAKE_DATABASE }}',
+              warehouse='${{ env.SNOWFLAKE_WAREHOUSE }}'
+          )
+          cur = conn.cursor()
+          with open('snowflake/sql/create_external_stage.sql', 'r') as f:
+              sql = f.read()
+          cur.execute(sql)
+          conn.close()
+          "
+          
+      - name: Setup Snowflake Stage
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE_PROD }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE_PROD }}
+        if: github.event.inputs.environment == 'prod'
+        run: |
+          python -c "
+          import snowflake.connector
+          conn = snowflake.connector.connect(
+              user='${{ env.SNOWFLAKE_USER }}',
+              password='${{ env.SNOWFLAKE_PASSWORD }}',
+              account='${{ env.SNOWFLAKE_ACCOUNT }}',
+              role='${{ env.SNOWFLAKE_ROLE }}',
+              database='${{ env.SNOWFLAKE_DATABASE }}',
+              warehouse='${{ env.SNOWFLAKE_WAREHOUSE }}'
+          )
+          cur = conn.cursor()
+          with open('snowflake/sql/create_external_stage.sql', 'r') as f:
+              sql = f.read()
+          cur.execute(sql)
+          conn.close()
+          " 
