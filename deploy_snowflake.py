@@ -12,6 +12,15 @@ conn = snowflake.connector.connect(
 )
 cursor = conn.cursor()
 print("Connected to:", os.environ['SNOWFLAKE_DATABASE'])
+
+# Explicitly use the database
+try:
+    cursor.execute(f"USE DATABASE {os.environ['SNOWFLAKE_DATABASE']}")
+    print(f"Successfully set database context to: {os.environ['SNOWFLAKE_DATABASE']}")
+except Exception as e:
+    print(f"Error setting database context: {e}")
+    # Continue anyway, as the connection parameter might have worked
+
 with open('snowflake/sql/init.sql', 'r') as f:
     sql = f.read()
     print("SQL to execute:")
